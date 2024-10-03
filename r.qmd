@@ -7,7 +7,9 @@ lang: pt
 date: today
 ---
 
-# Introdução
+# Relatório: Análise e Regressão Linear do Banco de Dados “Pinguins”
+
+# 1.Introdução
 
 Este relatório tem como objetivo ajustar um modelo de regressão linear múltipla para investigar a influência de determinadas características morfológicas e demográficas de pinguins sobre a variável de interesse "Profundidade do Bico". O estudo será conduzido com base no conjunto de dados "pinguins", que contém informações detalhadas de três espécies: Pinguim-de-adélia, Pinguim-de-barbicha e Pinguim-gentoo.
 
@@ -15,24 +17,125 @@ O dataset inclui medidas como massa corporal, comprimento da nadadeira e comprim
 
 Este relatório apresentará a análise detalhada das variáveis, construção do modelo de regressão e interpretação dos resultados, com o intuito de identificar os fatores mais relevantes na determinação da profundidade do bico entre as diferentes espécies de pinguins.
 
-## Setup
+# 2.Os dados
 
-{r Setup}
-#| echo: true
+Para obter o dataset "pinguins (terceiro_estagio)", foi necessário entrar em contato com a professora, que nos enviou o arquivo. Em seguida, ele foi baixado para ser utilizado no R. Para que o dataset estivesse disponível e pudesse ser utilizado nos códigos, foi necessário carregá-lo no ambiente do R.
 
-# Setup para o relatório Quarto
+Observando a estrutura da base de dados, possuímos 344 observações e 8 variáveis:
 
-knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+-   Sexo: Sexo do(a) pinguim, macho ou femea;
 
+-   Massa Corporal: Massa corporal, em gramas;
 
+-   Comprimento Nadadeira: Comprimento Nadadeira, em milímetros;
 
-{r}
+-   Ano: Ano de estudo, (2007, 2008, 2009);
 
-library("dados") 
-library(dplyr)
+-   Profundidade de Bico: Profundidade do bico, em milímetros;
 
-glimpse(pinguins) 
+-   Comprimento de bico: Comprimento do Bico, em milímetros;
 
-unique(pinguins$especie) # verifica as categorias distintas
+-   Ilha: Ilha do arquipélago Palmer, na Antártida (Biscoe, Dream ,Torgersen)
 
-table(pinguins$especie) # Frequencias por categoria
+-   Espécie: Espécies de pinguim (Pinguim-de-adélia, Pinguim-de-barbicha, Pinguim-gentoo);
+
+## 2.1 Análise exploratória dos dados
+
+```{r}
+library(skimr)
+
+#Colocar o caminho de onde está o arquivo .csv
+dados <- read.csv("D:/Codigos/ESTATISCA/terceiro_estagio.csv", header = TRUE, sep=';', dec=',')
+
+dados_clean <- na.omit(dados[, c("especie", "ilha","comprimento_bico" ,"profundidade_bico", "comprimento_nadadeira", "massa_corporal", "sexo", "ano")])
+
+skim(dados)
+```
+
+A instrução library(skimr) carrega o pacote skimr, que serve para elaborar resumos estatísticos de conjuntos de dados de maneira minuciosa e estruturada. No exemplo apresentado, cria-se primeiramente um objeto denominado dados, que contém o conjunto de dados pinguins(terceiro_estagio). Após isso, utiliza-se o comando skim(dados) para produzir um resumo estatístico desse conjunto, apresentando informações como o número de valores ausentes, média, mediana, desvio padrão, valores mínimo e máximo, entre outros fatores. Essa função torna mais fácil a compreensão das características dos dados de modo claro e intuitivo.
+
+Sobre a saída do codigo, o conjunto de dados possui 344 linhas e 8 colunas, sendo que 3 delas são variáveis categóricas (do tipo character) e as outras 5 são numéricas. Essa configuração nos proporciona uma visão sobre a estrutura do conjunto, que abrange informações tanto qualitativas quanto quantitativas.
+
+Entre as variáveis categóricas, a variável "espécie" contém dados sobre diferentes tipos de pinguins. A variável "ilha" apresenta três valores distintos, o que indica que as informações foram coletadas de três ilhas diferentes. A variável "sexo", também categórica, possui duas categorias principais, que provavelmente correspondem a "macho" e "fêmea".
+
+No que diz respeito às variáveis numéricas, as estatísticas descritivas incluem média, desvio padrão e percentis, facilitando uma compreensão mais aprofundada da distribuição dos dados. A média do comprimento do bico é de 43,9 mm, enquanto a profundidade média do bico é de 17,2 mm. A média da massa corporal é de 4202 gramas, sugerindo uma ligação entre essa variável e o peso dos pinguins.
+
+A análise dos percentis, como p25, p50 e p75, indica que a maioria dos valores está concentrada dentro de intervalos esperados, como no caso da **massa_corporal**, cuja maioria dos pinguins pesa entre 3550 e 4750 gramas. A distribuição das variáveis numéricas parece razoável e consistente, o que sugere que os dados estão bem representados e podem ser utilizados para análises mais aprofundadas.
+
+### 2.1.1 Análise de Correlação
+
+Com o intuito de realizar a análise das variáveis explicativas com a variável resposta**,** é possível observar algumas características por exemplo com a variável explicativa **comprimento_nadadeira.**
+
+```{r}
+plot(profundidade_bico ~ comprimento_nadadeira, data = dados_clean, 
+        main = "Profundidade do Bico por Comprimento nadadeira",
+        xlab = "comprimento_nadadeira", ylab = "Profundidade Bico")
+```
+
+Analisando esse gráfico de dispersão existe a divisão da população de pinguins em dois grupos, um quando o comprimento da nadadeira é menor a profundidade do bico é maior e outro quando o comprimento da nadadeira é maior a profundidade do bico é menor, ou seja, o coeficiente de correlação linear **r** será negativo
+
+```{r}
+plot(profundidade_bico ~ comprimento_bico, data = dados_clean, 
+        main = "Profundidade do Bico por Comprimento Bico",
+        xlab = "comprimento_bico", ylab = "Profundidade Bico")
+```
+
+O gráfico de dispersão com a variável **comprimento_bico**, não é possível encontrar alguma relação entre as variáveis.
+
+```{r}
+plot(profundidade_bico ~ massa_corporal, data = dados_clean, 
+        main = "Profundidade do Bico por Massa Corporal",
+        xlab = "massa_corporal", ylab = "Profundidade Bico")
+```
+
+Com relação à **massa_corporal** é possível observar que quanto maior a massa corporal menor a profundidade do bico e quando menor a massa corporal maior será o bico, logo, o coeficiente de correlação linear também será negativo
+
+```{r}
+library(GGally)
+
+graf1 <- ggpairs(dados_clean, columns = 3:6, ggplot2::aes(colour=especie))
+graf1
+```
+
+Importante ressaltar que as variáveis preditoras comprimento nadadeira e massa corporal podem ocasionar uma multicolinearidade, pois o coeficiente de correlação linear (Corr) é maior do que 0.8. Dessa forma, esse fato tem que ser corrigido no nosso modelo a ser escolhido.
+
+# 3. Modelo
+
+Inicialmente temos o primeiro modelo
+
+```{r}
+modelo1 <- lm(profundidade_bico ~ . -especie, data = dados_clean)
+summary(modelo1)
+```
+
+Devido a existência de uma correlação da variável resposta **profundidade_bico** com as variáveis explicativas **comprimento_nadadeira** e **massa_corporal** como já foi observado anteriormente elas variam em sentidos opostos, no entanto essas variáveis preditoras podem ocasionar a multicolinearidade. Assim, analisando o modelo 1 não existe nenhuma anormalidade com as estimativas, pois a medida que aumenta uma unidade no comprimento da nadadeira, tem uma estimativa de diminuir a profundidade do bico em -5.480e-02 o mesmo acontece com a massa corporal, pois quando aumenta uma unidade na massa corporal tem a estimativa de diminuir a profundidade do bico em -5.304e-04.
+
+No entanto, a variável preditora **comprimento_bico** possui o valor P igual a 0.57446 o que é maior do que 10%, sendo uma boa alternativa retirá-la do modelo 1.
+
+```{r}
+modelo2 <- update(modelo1, ~ . -comprimento_bico)
+summary(modelo2)
+```
+
+Com o novo modelo o valor R-squared obteve um aumento de 0.0007, indicando que o modelo 2 é melhor do que o modelo 1, pelo fato do valor R\^2 ser maior. No entanto, é possível realizar uma melhoria nesse modelo pelo fato da variável preditora ano possuir um valor P superior a 10%
+
+```{r}
+modelo3 <- update(modelo2, ~ . -ano)
+summary(modelo3)
+```
+
+Logo, podemos perceber uma melhoria nos valores tanto na estimativa, como também no valor R\^2,  0.6914, aumentando 0.0002, o que indica que houve uma melhora no modelo.Para confirmar essa ideia vamos calcular a medida AIC dos modelos.
+
+# 4. Métodos de seleção de modelos
+
+Tendo em vista que temos três possíveis modelos calculamos o AIC
+
+```{r}
+AIC(modelo1)
+
+AIC(modelo2)
+
+AIC(modelo3)
+```
+
+Dessa forma, o menor valor AIC indica o melhor modelo que no caso seria o modelo 3

@@ -1,5 +1,5 @@
 ---
-title: "Regressão Linear Múltipla - Exemplo Íris"
+title: "Relatório: Análise e Regressão Linear do Banco de Dados “Pinguins”"
 author: "Igor Falcão, Beatriz Beckman e Natã Cavalcante"
 format: pdf
 editor: visual
@@ -99,7 +99,7 @@ graf1
 
 Importante ressaltar que as variáveis preditoras comprimento nadadeira e massa corporal podem ocasionar uma multicolinearidade, pois o coeficiente de correlação linear (Corr) é maior do que 0.8. Dessa forma, esse fato tem que ser corrigido no nosso modelo a ser escolhido.
 
-# 3. Modelo
+# 3. Modelos
 
 Inicialmente temos o primeiro modelo
 
@@ -128,6 +128,8 @@ Logo, podemos perceber uma melhoria nos valores tanto na estimativa, como també
 
 # 4. Métodos de seleção de modelos
 
+## 4.1 Medida AIC
+
 Tendo em vista que temos três possíveis modelos calculamos o AIC
 
 ```{r}
@@ -139,3 +141,104 @@ AIC(modelo3)
 ```
 
 Dessa forma, o menor valor AIC indica o melhor modelo que no caso seria o modelo 3
+
+## 4.2 Medida BIC
+
+Agora vamos calcular o melhor modelo possível segundo o BIC
+
+```{r}
+BIC(modelo1)
+
+BIC(modelo2)
+
+BIC(modelo3)
+```
+
+Assim, o menor valor BIC indica o melhor modelo que no caso seria o modelo 3, faz-se o BIC para possuir uma melhor confirmação sobre qual é o caminho preferível.
+
+## 4.3 Comparação de modelos encaixados(ANOVA)
+
+Comparação de modelos aninhados, ou seja, quando um ou mais modelo é obtido como sub-conjunto do(s) outro(s)
+
+```{r}
+anova(modelo1,modelo2)
+
+```
+
+Como o p-valor (0.5745) é significativamente maior que 0.05, não há evidências suficientes para concluir que a remoção da variável comprimento_bico melhora o modelo de forma significativa. Portanto, a inclusão do comprimento do bico é justificada, pois a exclusão dessa variável não resulta em um modelo que explique melhor a variação na profundidade do bico. Em resumo, a análise sugere que o comprimento do bico deve ser mantido no modelo para melhor entendimento dos fatores que influenciam a profundidade do bico.
+
+```{r}
+anova(modelo2,modelo3)
+
+```
+
+Como o p-valor (0.3894) é significativamente maior que 0.05, não há evidências suficientes para concluir que a remoção da variável ano melhora o modelo de forma significativa. Assim, a inclusão do ano no Modelo 1 é justificada, pois a exclusão dessa variável não resulta em um modelo que explique melhor a variação na profundidade do bico. Em resumo, os dados sugerem que a variável ano desempenha um papel importante na modelagem da profundidade do bico, e sua remoção não é recomendada.
+
+```{r}
+anova(modelo1,modelo3)
+
+```
+
+Dado que o p-valor (0.5899) é significativamente maior que 0.05, não há evidências suficientes para afirmar que a remoção das variáveis comprimento do bico, ilha, comprimento da nadadeira, massa corporal e sexo (considerando a comparação com o Modelo 1) resulta em um modelo significativamente melhor. Isso sugere que a inclusão das variáveis do Modelo 1 é justificada, pois a exclusão de qualquer uma delas não melhora a explicação da variação na profundidade do bico.
+
+Em síntese, os resultados indicam que as variáveis incluídas no Modelo 1 desempenham papéis importantes e devem ser mantidas para uma modelagem adequada da profundidade do bico.
+
+# 5. Modelo selecionado(modelo 3)
+
+Levando em consideração os métodos de seleção de um modelo, podemos verificar que para realizar previsões e também interpretações o modelo a ser adotado é o modelo 3.
+
+```{r}
+plot(modelo3)
+```
+
+## 5.1 Cometários
+
+-   **Residuals vs Fitted:** Os pontos estão distribuídos de forma aleatória, sem nenhum padrão específico na forma de U ou V, logo, verificando a linearidade e a homocedasticidade.
+
+-   **Normal Q-Q**: Os pontos seguem a linha reta, ajudando a suposição de que os resíduos seguem uma distribuição normal.
+
+-   **Scale-Location (ou Spread-Location)**: Os pontos estão espalhados em torno de uma linha horizontal, verificando verificando a homocedasticidade.
+
+-   **Residuals vs Leverage**: esse gráfico ajuda a identificar outliers e pontos com alta alavancagem
+
+# 6. Interpretação do modelo selecionado
+
+```{r}
+#install.packages("report")
+
+library(report)
+
+report(modelo3)
+```
+
+(R² = 0,70; F(5, 327) = 149,78; p \< 0,001; R² ajustado = 0,69). Em termos simples, isso significa que **70%** da variação observada na profundidade do bico pode ser explicada pelas variáveis incluídas no modelo. Esse valor indica um bom ajuste do modelo.
+
+O intercepto do modelo, que corresponde à **profundidade do bico** quando, ilha = Biscoe, comprimento_nadadeira = 0, massa_corporal = 0, sexo = fêmea, é estimado em 27,90 mm, com um intervalo de confiança de 95% \[25,24, 30,56\]. O valor t associado ao intercepto é 20,64 (p \< 0,001), o que indica que ele é estatisticamente significativo.
+
+O efeito de estar na **ilha Dream** é positivo e estatisticamente significativo. Isso significa que, em média, os indivíduos nessa ilha têm uma profundidade de bico 1,06 mm maior do que os da ilha Biscoe, com um intervalo de confiança de 95% entre \[0,72, 1,40\] (t(327) = 6,16, p \< 0,001). O coeficiente padronizado (beta padronizado) é 0,54, o que sugere que esse efeito é moderadamente forte em relação às outras variáveis do modelo.
+
+Estar na **ilha Torgersen** também tem um efeito positivo significativo, resultando, em média, numa profundidade de bico 1,12 mm maior do que na ilha Biscoe (IC 95% \[0,70, 1,54\]; t(327) = 5,22, p \< 0,001). O coeficiente padronizado é 0,57, indicando que o efeito da ilha Torgersen é ligeiramente mais forte que o da ilha Dream.
+
+O efeito do **comprimento da nadadeira** é negativo e estatisticamente significativo. Cada aumento de uma unidade no comprimento da nadadeira está associado a uma redução de 0,05 mm na profundidade do bico (IC 95% \[-0,07, -0,03\]; t(327) = -5,46, p \< 0,001). O coeficiente padronizado é -0,36, o que sugere um efeito moderado e inverso — quanto maior a nadadeira, menor a profundidade do bico.
+
+O efeito da **massa corporal** também é negativo e significativo. Cada incremento na massa corporal está associado a uma redução de 0,000563 mm na profundidade do bico (IC 95% \[-0,000923, -0,000203\]; t(327) = -3,08, p = 0,002). Embora esse efeito seja pequeno, ele é estatisticamente significativo e o coeficiente padronizado (-0,23) sugere que seu impacto relativo é menor em comparação com as outras variáveis.
+
+Ser do **sexo masculino** tem um efeito positivo **muito forte** na profundidade do bico. Machos tendem a ter, em média, 2,22 mm a mais de profundidade de bico do que fêmeas (IC 95% \[1,93, 2,50\]; t(327) = 15,20, p \< 0,001). O coeficiente padronizado é 1,13, indicando que o sexo é a variável com o efeito mais forte no modelo.
+
+Logo podemos concluir que os pinguins das ilhas Dream e Torgersen têm bicos mais profundos do que a ilha Biscoe, o comprimento da nadadeira e a massa corporal estão inversamente associados à profundidade do bico, e por fim machos tendem a ter bicos sifnificamente mais profundos que as fêmeas, o que pode ter implicações para estudos comportamentais ou ecológicos.
+
+## 6.1 Coeficientes padronizados
+
+```{r}
+#install.packages("lm.beta")
+
+lm.beta::lm.beta(modelo2)
+```
+
+# 7. Previsões
+
+Resumo sobre os dados observados:
+
+```{r}
+summary(dados)
+```

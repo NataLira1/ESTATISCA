@@ -1,0 +1,38 @@
+---
+title: "Regressão Linear Múltipla - Exemplo Íris"
+author: "Igor Falcão, Beatriz Beckman e Natã Cavalcante"
+format: pdf
+editor: visual
+lang: pt
+date: today
+---
+
+# Introdução
+
+Este relatório tem como objetivo ajustar um modelo de regressão linear múltipla para investigar a influência de determinadas características morfológicas e demográficas de pinguins sobre a variável de interesse "Profundidade do Bico". O estudo será conduzido com base no conjunto de dados "pinguins", que contém informações detalhadas de três espécies: Pinguim-de-adélia, Pinguim-de-barbicha e Pinguim-gentoo.
+
+O dataset inclui medidas como massa corporal, comprimento da nadadeira e comprimento do bico, além de informações categóricas como o sexo dos pinguins e a ilha onde foram encontrados (Biscoe, Dream, Torgersen). Nosso objetivo é compreender como essas variáveis explicativas influenciam a profundidade do bico, uma característica importante para a alimentação e adaptação das espécies ao ambiente.
+
+Este relatório apresentará a análise detalhada das variáveis, construção do modelo de regressão e interpretação dos resultados, com o intuito de identificar os fatores mais relevantes na determinação da profundidade do bico entre as diferentes espécies de pinguins.
+
+## Setup
+
+{r Setup}
+#| echo: true
+
+# Setup para o relatório Quarto
+
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+
+
+
+{r}
+
+library("dados") 
+library(dplyr)
+
+glimpse(pinguins) 
+
+unique(pinguins$especie) # verifica as categorias distintas
+
+table(pinguins$especie) # Frequencias por categoria

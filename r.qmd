@@ -7,6 +7,15 @@ lang: pt
 date: today
 ---
 
+```{r Setup}
+#| echo: true
+
+# Setup para o relatório Quarto
+
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+
+```
+
 # Relatório: Análise e Regressão Linear do Banco de Dados “Pinguins”
 
 # 1.Introdução
@@ -44,10 +53,16 @@ Observando a estrutura da base de dados, possuímos 344 observações e 8 variá
 ```{r}
 library(skimr)
 
-#Colocar o caminho de onde está o arquivo .csv
-dados <- read.csv("D:/Codigos/ESTATISCA/terceiro_estagio.csv", header = TRUE, sep=';', dec=',')
+# Caminho relativo para o arquivo .csv
+dados <- read.csv("./terceiro_estagio.csv", 
+                  header = TRUE, 
+                  sep = ';', 
+                  dec = ',')
 
-dados_clean <- na.omit(dados[, c("especie", "ilha","comprimento_bico" ,"profundidade_bico", "comprimento_nadadeira", "massa_corporal", "sexo", "ano")])
+dados_clean <- na.omit(dados[, 
+                             c("especie", "ilha","comprimento_bico" 
+                            ,"profundidade_bico", "comprimento_nadadeira", 
+                            "massa_corporal", "sexo", "ano")])
 
 skim(dados)
 ```
@@ -62,7 +77,53 @@ No que diz respeito às variáveis numéricas, as estatísticas descritivas incl
 
 A análise dos percentis, como p25, p50 e p75, indica que a maioria dos valores está concentrada dentro de intervalos esperados, como no caso da **massa_corporal**, cuja maioria dos pinguins pesa entre 3550 e 4750 gramas. A distribuição das variáveis numéricas parece razoável e consistente, o que sugere que os dados estão bem representados e podem ser utilizados para análises mais aprofundadas.
 
-### 2.1.1 Análise de Correlação
+### 2.1.1 Análise de outliers
+
+```{r}
+boxplot(dados_clean$profundidade_bico, 
+        main = "Boxplot de Profundidade do Bico",
+        ylab = "Profundidade do Bico",
+        col = "lightblue", 
+        border = "darkblue",
+        outline = TRUE)
+
+```
+
+```{r}
+boxplot(dados_clean$comprimento_bico, 
+        main = "Boxplot de Comprimento do Bico",
+        ylab = "Comprimento do Bico",
+        col = "lightblue", 
+        border = "darkblue",
+        outline = TRUE)
+
+```
+
+```{r}
+boxplot(dados_clean$comprimento_nadadeira, 
+        main = "Boxplot de Comprimento da Nadadeira",
+        ylab = "Comprimento do Nadadeira",
+        col = "lightblue", 
+        border = "darkblue",
+        outline = TRUE)
+
+```
+
+```{r}
+boxplot(dados_clean$massa_corporal, 
+        main = "Boxplot de Massa Corporal",
+        ylab = "Massa corporal",
+        col = "lightblue", 
+        border = "darkblue",
+        outline = TRUE)
+
+```
+
+Após gerar o boxplot de todas as variaveis quantitativas, não foram identificados outliers. Isso sugere que os dados dessa variável estão bem distribuídos dentro do intervalo esperado, sem a presença de valores anômalos ou extremos que pudessem distorcer a análise estatística. A ausência de outliers indica também que os dados podem estar bem comportados e não apresentam erros significativos ou variabilidade extrema.
+
+Os outliers poderiam ser identificados no boxplot como pontos que ficam fora dos limites do gráfico.
+
+### 2.1.2 Análise de Correlação
 
 Com o intuito de realizar a análise das variáveis explicativas com a variável resposta**,** é possível observar algumas características por exemplo com a variável explicativa **comprimento_nadadeira.**
 
@@ -95,11 +156,47 @@ library(GGally)
 
 graf1 <- ggpairs(dados_clean, columns = 3:6, ggplot2::aes(colour=especie))
 graf1
+
 ```
 
 Importante ressaltar que as variáveis preditoras comprimento nadadeira e massa corporal podem ocasionar uma multicolinearidade, pois o coeficiente de correlação linear (Corr) é maior do que 0.8. Dessa forma, esse fato tem que ser corrigido no nosso modelo a ser escolhido.
 
+### 2.1.3 Multicolinearidade - Analisando o VIF - Variance Inflation Factor
+
+```{r}
+
+modelo1 <- lm(profundidade_bico ~ . -especie, data = dados_clean)
+
+library(car) 
+
+vif(modelo1)
+
+```
+
+A análise de Variance Inflation Factor (VIF), o objetivo é avaliar a presença de multicolinearidade entre as variáveis independentes de um modelo de regressão. Valores de VIF acima de 5 indicam uma colinearidade moderada e valores acima de 10 sugerem alta multicolinearidade, o que pode prejudicar a interpretação dos coeficientes de regressão.
+
+Aqui está uma interpretação detalhada dos resultados:
+
+Ilha (GVIF\^(1/(2\*Df)) = 1.240908): O valor do GVIF ajustado indica que a variável "ilha" não apresenta colinearidade preocupante. Como o valor está abaixo de 5, não há indícios de multicolinearidade severa.
+
+Comprimento do bico (GVIF\^(1/(2\*Df)) = 1.528438): O valor é baixo e sugere que a variável "comprimento do bico" também não tem problemas de colinearidade.
+
+Comprimento da nadadeira (GVIF\^(1/(2\*Df)) = 2.464037): Embora um pouco maior, este valor ainda está abaixo do limite crítico de 5, o que indica uma colinearidade leve, mas não crítica.
+
+Massa corporal (GVIF\^(1/(2\*Df)) = 2.523921): Semelhante ao comprimento da nadadeira, o valor é relativamente alto, mas não ultrapassa o limite de 5. Pode ser considerado uma leve colinearidade, mas não problemático.
+
+Sexo (GVIF\^(1/(2\*Df)) = 1.237679): O valor de VIF é muito baixo, o que sugere que a variável "sexo" está livre de qualquer colinearidade.
+
+Ano (GVIF\^(1/(2\*Df)) = 1.046253): O valor mais baixo entre todas as variáveis, indicando que não há multicolinearidade associada ao "ano".
+
+Dessa forma, nenhuma das variáveis apresenta multicolinearidade severa, já que todos os valores de GVIF ajustados estão bem abaixo do limite crítico de 5. As variáveis "comprimento da nadadeira" e "massa corporal" têm valores ligeiramente mais altos, o que sugere uma pequena correlação entre essas variáveis, mas nada que precise de intervenção imediata.
+
 # 3. Modelos
+
+```{r}
+modelo10 <- lm(profundidade_bico ~ ., data = dados_clean)
+summary(modelo10)
+```
 
 Inicialmente temos o primeiro modelo
 
@@ -125,6 +222,7 @@ summary(modelo3)
 ```
 
 Logo, podemos perceber uma melhoria nos valores tanto na estimativa, como também no valor R\^2,  0.6914, aumentando 0.0002, o que indica que houve uma melhora no modelo.Para confirmar essa ideia vamos calcular a medida AIC dos modelos.
+
 
 # 4. Métodos de seleção de modelos
 
@@ -195,11 +293,34 @@ plot(modelo3)
 
 -   **Residuals vs Fitted:** Os pontos estão distribuídos de forma aleatória, sem nenhum padrão específico na forma de U ou V, logo, verificando a linearidade e a homocedasticidade.
 
--   **Normal Q-Q**: Os pontos seguem a linha reta, ajudando a suposição de que os resíduos seguem uma distribuição normal.
+-   **Normal Q-Q**: Os pontos seguem a linha reta, ajudando a suposição de que os resíduos seguem uma distribuição normal. Esses resultados indicam que os resíduos do modelo se comportam de forma consistente com a normalidade, o que valida os testes estatísticos aplicados aos coeficientes do modelo e reforça a confiabilidade das inferências feitas.
 
 -   **Scale-Location (ou Spread-Location)**: Os pontos estão espalhados em torno de uma linha horizontal, verificando verificando a homocedasticidade.
 
 -   **Residuals vs Leverage**: esse gráfico ajuda a identificar outliers e pontos com alta alavancagem
+
+## 5.2 Independência dos Erros, teste DurbinWatson
+
+```{r}
+library(car)
+durbinWatsonTest(modelo3)
+```
+Os resultados indicam que há uma autocorrelação significativa nos resíduos do modelo, o que pode indicar que o modelo não está capturando todas as dinâmicas nos dados. A autocorrelação pode comprometer a validade das inferências feitas a partir do modelo, como a precisão dos intervalos de confiança e testes de hipóteses para os coeficientes.
+
+## 5.3 Normalidade dos Erros, Shapiro
+
+```{r}
+
+shapiro.test(residuals(modelo3))
+```
+O teste de Shapiro-Wilk foi aplicado para verificar a normalidade dos resíduos do modelo de regressão linear modelo3, um pressuposto fundamental para a validade das inferências estatísticas. Os resultados foram:
+Estatística W: 0.99275
+p-valor: 0.1067
+
+A estatística W próxima de 1 indica que os resíduos estão próximos de uma distribuição normal. O p-valor de 0.1067, sendo maior que 0.05, sugere que não há evidências suficientes para rejeitar a hipótese nula de normalidade.
+
+Esses resultados indicam que os resíduos do modelo se comportam de forma consistente com a normalidade assim como observado no grafico Q-Q.
+
 
 # 6. Interpretação do modelo selecionado
 
@@ -207,8 +328,8 @@ plot(modelo3)
 #install.packages("report")
 
 library(report)
+#report(modelo3)
 
-report(modelo3)
 ```
 
 (R² = 0,70; F(5, 327) = 149,78; p \< 0,001; R² ajustado = 0,69). Em termos simples, isso significa que **70%** da variação observada na profundidade do bico pode ser explicada pelas variáveis incluídas no modelo. Esse valor indica um bom ajuste do modelo.
@@ -232,13 +353,78 @@ Logo podemos concluir que os pinguins das ilhas Dream e Torgersen têm bicos mai
 ```{r}
 #install.packages("lm.beta")
 
-lm.beta::lm.beta(modelo2)
+lm.beta::lm.beta(modelo3)
 ```
 
-# 7. Previsões
-
-Resumo sobre os dados observados:
+# 7 Previsões e Estimação Intervalar
 
 ```{r}
-summary(dados)
+novos_dados <- data.frame(
+  especie = factor(c("Pinguim-de-barbicha", 
+                     "Pinguim-gentoo"),
+                   levels = c("Pinguim-de-barbicha", 
+                              "Pinguim-gentoo")),
+  ilha = factor(c("Dream" , "Biscoe"), 
+                levels = c("Dream", "Biscoe")),
+  comprimento_nadadeira = c(193, 229), 
+  massa_corporal = c(3800, 5950),       
+  sexo = factor(c("fêmea", "macho"), 
+                levels = c("fêmea", "macho"))
+)
+
+
+previsoes <- predict(modelo3, novos_dados, interval = "confidence")
+print(previsoes)
 ```
+
+Análise das previsões da profundidade de bico de diferentes espécies de pinguins, utilizando um modelo de regressão linear múltipla (modelo3). A previsão é feita com base em características específicas, como comprimento da nadadeira, massa corporal e sexo dos pinguins. Os dados reais são comparados com as previsões para avaliar a precisão do modelo.
+
+Para realizar as previsões, foram obtidos esses dados para três espécies de pinguins:
+
+1.  **Pinguim-de-barbicha**
+    -   Comprimento de nadadeira: 193 mm
+    -   Massa corporal: 3800 g
+    -   Sexo: fêmea
+    -   Ilha: Dream
+3.  **Pinguim-gentoo**
+    -   Comprimento de nadadeira: 229 mm
+    -   Massa corporal: 5950 g
+    -   Sexo: macho
+    -   Ilha: Biscoe
+
+## 7.1 Resultados
+
+As previsões obtidas para a profundidade de bico foram as seguintes:
+
+| Espécie | Previsão (mm) | Limite Inferior (mm) | Limite Superior (mm) | Dado Real (mm) |
+|---------------|---------------|---------------|---------------|---------------|
+| Pinguim-de-barbicha | 17.91 | 17.67 | 18.14 | 17.8 |
+| Pinguim-gentoo | 16.21 | 15.98 | 16.45 | 15.9 |
+
+### 7.2 Erros de Previsão
+
+A comparação entre os valores previstos e reais resulta nos seguintes erros absolutos:
+
+1.  **Pinguim-de-barbicha**:
+    -   Previsão: **17.91 mm**
+    -   Dado Real: **17.8 mm**
+    -   Erro: ( \|17.91 - 17.8\| = 0.11 ) mm
+3.  **Pinguim-gentoo**:
+    -   Previsão: **16.21 mm**
+    -   Dado Real: **15.9 mm**
+    -   Erro: ( \|16.21 - 15.9\| = 0.31 ) mm
+
+### 7.3 Análise de Resultados
+
+-   **Pinguim-de-barbicha**: A previsão está muito próxima do valor real, apresentando um erro de apenas 0.11 mm, o que indica que o modelo está capturando bem a relação entre as variáveis para esta espécie.
+
+
+-   **Pinguim-gentoo**: A previsão também é razoavelmente próxima do valor real, com um erro de 0.31 mm. Embora o modelo não seja tão preciso quanto para o *Pinguim-de-barbicha*, ele ainda fornece uma estimativa útil.
+
+
+### 7.4 Conclusão
+
+O modelo de regressão linear múltipla utilizado para prever a profundidade do bico de diferentes espécies de pinguins mostrou-se eficaz em geral, embora com variação no desempenho entre as espécies. Para o *Pinguim-de-barbicha*, o erro de previsão foi mínimo (0.11 mm), demonstrando que o modelo conseguiu captar com precisão as relações entre as variáveis. Já para o *Pinguim-gentoo*, o erro foi um pouco maior (0.31 mm), sugerindo que o modelo pode não capturar com a mesma eficiência as características dessa espécie.
+
+Essa diferença de desempenho pode ser explicada por variações biológicas entre as espécies ou até mesmo por uma menor representatividade de dados no conjunto utilizado para o treinamento do modelo. Assim, a inclusão de um maior número de amostras e o refinamento do modelo, levando em conta outros fatores, como variações ambientais ou de comportamento, podem melhorar ainda mais a acurácia das previsões. 
+

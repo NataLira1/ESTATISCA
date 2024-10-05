@@ -161,35 +161,6 @@ graf1
 
 Importante ressaltar que as variáveis preditoras comprimento nadadeira e massa corporal podem ocasionar uma multicolinearidade, pois o coeficiente de correlação linear (Corr) é maior do que 0.8. Dessa forma, esse fato tem que ser corrigido no nosso modelo a ser escolhido.
 
-### 2.1.3 Multicolinearidade - Analisando o VIF - Variance Inflation Factor
-
-```{r}
-
-modelo1 <- lm(profundidade_bico ~ . -especie, data = dados_clean)
-
-library(car) 
-
-vif(modelo1)
-
-```
-
-A análise de Variance Inflation Factor (VIF), o objetivo é avaliar a presença de multicolinearidade entre as variáveis independentes de um modelo de regressão. Valores de VIF acima de 5 indicam uma colinearidade moderada e valores acima de 10 sugerem alta multicolinearidade, o que pode prejudicar a interpretação dos coeficientes de regressão.
-
-Aqui está uma interpretação detalhada dos resultados:
-
-Ilha (GVIF\^(1/(2\*Df)) = 1.240908): O valor do GVIF ajustado indica que a variável "ilha" não apresenta colinearidade preocupante. Como o valor está abaixo de 5, não há indícios de multicolinearidade severa.
-
-Comprimento do bico (GVIF\^(1/(2\*Df)) = 1.528438): O valor é baixo e sugere que a variável "comprimento do bico" também não tem problemas de colinearidade.
-
-Comprimento da nadadeira (GVIF\^(1/(2\*Df)) = 2.464037): Embora um pouco maior, este valor ainda está abaixo do limite crítico de 5, o que indica uma colinearidade leve, mas não crítica.
-
-Massa corporal (GVIF\^(1/(2\*Df)) = 2.523921): Semelhante ao comprimento da nadadeira, o valor é relativamente alto, mas não ultrapassa o limite de 5. Pode ser considerado uma leve colinearidade, mas não problemático.
-
-Sexo (GVIF\^(1/(2\*Df)) = 1.237679): O valor de VIF é muito baixo, o que sugere que a variável "sexo" está livre de qualquer colinearidade.
-
-Ano (GVIF\^(1/(2\*Df)) = 1.046253): O valor mais baixo entre todas as variáveis, indicando que não há multicolinearidade associada ao "ano".
-
-Dessa forma, nenhuma das variáveis apresenta multicolinearidade severa, já que todos os valores de GVIF ajustados estão bem abaixo do limite crítico de 5. As variáveis "comprimento da nadadeira" e "massa corporal" têm valores ligeiramente mais altos, o que sugere uma pequena correlação entre essas variáveis, mas nada que precise de intervenção imediata.
 
 # 3. Modelos
 
@@ -317,6 +288,16 @@ A estatística W próxima de 1 indica que os resíduos estão próximos de uma d
 
 Esses resultados indicam que os resíduos do modelo se comportam de forma consistente com a normalidade assim como observado no grafico Q-Q.
 
+## 5.4 Analisando o VIF - Variance Inflation Factor
+
+```{r}
+
+library(car) 
+
+vif(modelo3)
+
+```
+Ao avaliar os valores do VIF (Variance Inflation Factor), que mede a colinearidade entre as variáveis independentes, observamos os seguintes resultados: a variável ilha apresenta um VIF de 1.90, o que sugere que a colinearidade não é um problema significativo. A variável comprimento_nadadeira, com um VIF de 4.56, também se encontra dentro de um limite aceitável, mas merece atenção. A variável massa_corporal, com um VIF de 6.02, está acima do limite recomendado, indicando uma possível preocupação com a multicolinearidade. Por fim, a variável sexo, com um VIF de 1.48, está bem abaixo do limite, sugerindo que não há problemas de colinearidade nesta variável. Esses resultados indicam que, embora o modelo em geral seja robusto, a variável massa_corporal pode estar impactando a interpretabilidade dos coeficientes devido à sua multicolinearidade moderada.
 
 # 6. Interpretação do modelo selecionado
 

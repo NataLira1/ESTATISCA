@@ -159,37 +159,81 @@ graf1
 
 ```
 
-Importante ressaltar que as variáveis preditoras comprimento nadadeira e massa corporal podem ocasionar uma multicolinearidade, pois o coeficiente de correlação linear (Corr) é maior do que 0.8. Dessa forma, esse fato tem que ser corrigido no nosso modelo a ser escolhido.
+### 2.1.3 Comentários
 
+1.  A variável **comprimento_bico:**
+
+    i\. apresenta uma correlação linear baixa com profundidade_bico (Corr = - 0.229) e crescem em sentidos opostos;
+
+    ii\. apresenta uma boa correlação linear com comprimento_nadadeira (Corr = 0.653) e crescem no mesmo sentido;
+
+    iii\. apresenta uma boa correlação linear com massa_corporal (Corr = 0.589) e crescem no mesno sentido;
+
+2.  A variável **profundidade_bico:**
+
+    i\. apresenta uma boa correlação linear com comprimento_nadadaeira (Corr = -0.578) e crescem em sentidos opostos;
+
+    ii\. apresenta uma boa correlação linear com massa_corporal (Corr = -0.472) e crescem em sentidos opostos;
+
+3.  A variável **comprimento_nadadeiara:**
+
+    i\. apresenta uma ótima correlação linear com massa_corporal (Corr = 0.873) e crescem no mesmo sentido. No entanto, esse alto valor do coeficiente de correlação pode ocasionar a multicolinearidade
+
+Importante ressaltar que as variáveis preditoras comprimento nadadeira e massa corporal podem ocasionar uma multicolinearidade, pois o coeficiente de correlação linear (Corr) é maior do que 0.8. Dessa forma, esse fato tem que ser corrigido no nosso modelo a ser escolhido.
 
 # 3. Modelos
 
-
-Inicialmente temos o primeiro modelo
+Construindo um modelo com todas as variáveis preditoras possíveis:
 
 ```{r}
-modelo1 <- lm(profundidade_bico ~ . -especie, data = dados_clean)
+modelo0 <- lm(profundidade_bico ~ ., data = dados_clean)
+summary(modelo0)
+```
+
+Analisando o modelo0 é possível verificar que o valor do coeficiente R-squared é 0.8407, o que indica que aproximadamente 84% da variações da profundidade do bico pode ser explicada pelas variáveis preditoras do modelo.
+
+No entanto, nesse modelo existe uma anormalidade nas estimativas levando em consideração que os coeficiente de correlação linear (Corr) da variável resposta **profundidade_bico** com **comprimento_bico**, **comprimento_nadadeira** e **massa_corporal** possuem valores negativos, ou seja, as variáveis crescem em sentidos opostos. Dessa maneira, o modelo0 apresenta estimativas contraditórias referente a essas variáveis, pois com o aumento de uma unidade nessas veriáveis explicativas era pra ter uma estimativa negativa.
+
+Essa situação pode ser explicada pela **multicolinearidade** entre as variáveis preditoras, causando o cálculo incorreto, para provar essa questão é calculado o VIF.
+
+```{r}
+vif(modelo0)
+```
+
+Como pode ser observado o VIF foi igual a 45.3, um valor muito alto indicando que existe multicolinearidade entre as variáveis, pois um VIF maior que 10 já é um caso de multicolinearidade. Dessa forma, uma alternativa para solucionar esse problema é retirar a variável especie do modelo0
+
+```{r}
+modelo1 <- update(modelo0, ~ . -especie)
 summary(modelo1)
 ```
 
-Devido a existência de uma correlação da variável resposta **profundidade_bico** com as variáveis explicativas **comprimento_nadadeira** e **massa_corporal** como já foi observado anteriormente elas variam em sentidos opostos, no entanto essas variáveis preditoras podem ocasionar a multicolinearidade. Assim, analisando o modelo 1 não existe nenhuma anormalidade com as estimativas, pois a medida que aumenta uma unidade no comprimento da nadadeira, tem uma estimativa de diminuir a profundidade do bico em -5.480e-02 o mesmo acontece com a massa corporal, pois quando aumenta uma unidade na massa corporal tem a estimativa de diminuir a profundidade do bico em -5.304e-04.
+```{r}
+vif(modelo1)
+```
 
-No entanto, a variável preditora **comprimento_bico** possui o valor P igual a 0.57446 o que é maior do que 10%, sendo uma boa alternativa retirá-la do modelo 1.
+Analisando o modelo 1 não existe nenhuma anormalidade com as estimativas, pois a medida que aumenta uma unidade no comprimento da nadadeira, tem uma estimativa de diminuir a profundidade do bico em -5.480e-02 o mesmo acontece com a massa corporal, pois quando aumenta uma unidade na massa corporal tem a estimativa de diminuir a profundidade do bico em -5.304e-04.
+
+Logo, observando o modelo1 verifica-se que não existe nenhuma anormalidade com as estimativas, apenas com o **comprimento_bico**, no entanto é quase irrelevante devido por ser uma variável não significativa pelo fato do seu valor p ser igual a 0.574 sendo maior que 0.1
+
+Outro fator que pode ser levado em consideração é a análise do VIF, nesse modelo1 todos os valores são menores do que 10, sendo um ponto positivo.
+
+É possível melhorar esse modelo retirando a variável **comprimento_bico**
 
 ```{r}
 modelo2 <- update(modelo1, ~ . -comprimento_bico)
 summary(modelo2)
 ```
 
-Com o novo modelo o valor R-squared obteve um aumento de 0.0007, indicando que o modelo 2 é melhor do que o modelo 1, pelo fato do valor R\^2 ser maior. No entanto, é possível realizar uma melhoria nesse modelo pelo fato da variável preditora ano possuir um valor P superior a 10%
+Com o novo modelo o valor Adjusted R-squared obteve um aumento de 0.0007, indicando que o modelo 2 é melhor do que o modelo 1, pelo fato do valor ser maior.
+
+No entanto, é possível realizar uma melhoria nesse modelo pelo fato da variável preditora ano possuir um valor P igual a 0.38 sendo superior a 0.1
 
 ```{r}
 modelo3 <- update(modelo2, ~ . -ano)
 summary(modelo3)
 ```
 
-Logo, podemos perceber uma melhoria nos valores tanto na estimativa, como também no valor R\^2,  0.6914, aumentando 0.0002, o que indica que houve uma melhora no modelo.Para confirmar essa ideia vamos calcular a medida AIC dos modelos.
-
+Logo, podemos perceber uma melhoria nos valores tanto na estimativa, como também no valor Adjusted R-squared sendo igual a 0.6914, aumentando 0.0002, o que indica que houve uma melhora no modelo. Para confirmar essa ideia utiliza-se os métodos de seleção de modelos
 
 # 4. Métodos de seleção de modelos
 
@@ -272,6 +316,7 @@ plot(modelo3)
 library(car)
 durbinWatsonTest(modelo3)
 ```
+
 Os resultados indicam que há uma autocorrelação significativa nos resíduos do modelo, o que pode indicar que o modelo não está capturando todas as dinâmicas nos dados. A autocorrelação pode comprometer a validade das inferências feitas a partir do modelo, como a precisão dos intervalos de confiança e testes de hipóteses para os coeficientes.
 
 ## 5.3 Normalidade dos Erros, Shapiro
@@ -280,9 +325,8 @@ Os resultados indicam que há uma autocorrelação significativa nos resíduos d
 
 shapiro.test(residuals(modelo3))
 ```
-O teste de Shapiro-Wilk foi aplicado para verificar a normalidade dos resíduos do modelo de regressão linear modelo3, um pressuposto fundamental para a validade das inferências estatísticas. Os resultados foram:
-Estatística W: 0.99275
-p-valor: 0.1067
+
+O teste de Shapiro-Wilk foi aplicado para verificar a normalidade dos resíduos do modelo de regressão linear modelo3, um pressuposto fundamental para a validade das inferências estatísticas. Os resultados foram: Estatística W: 0.99275 p-valor: 0.1067
 
 A estatística W próxima de 1 indica que os resíduos estão próximos de uma distribuição normal. O p-valor de 0.1067, sendo maior que 0.05, sugere que não há evidências suficientes para rejeitar a hipótese nula de normalidade.
 
@@ -297,6 +341,7 @@ library(car)
 vif(modelo3)
 
 ```
+
 Ao avaliar os valores do VIF (Variance Inflation Factor), que mede a colinearidade entre as variáveis independentes, observamos os seguintes resultados: a variável ilha apresenta um VIF de 1.90, o que sugere que a colinearidade não é um problema significativo. A variável comprimento_nadadeira, com um VIF de 4.56, também se encontra dentro de um limite aceitável, mas merece atenção. A variável massa_corporal, com um VIF de 6.02, está acima do limite recomendado, indicando uma possível preocupação com a multicolinearidade. Por fim, a variável sexo, com um VIF de 1.48, está bem abaixo do limite, sugerindo que não há problemas de colinearidade nesta variável. Esses resultados indicam que, embora o modelo em geral seja robusto, a variável massa_corporal pode estar impactando a interpretabilidade dos coeficientes devido à sua multicolinearidade moderada.
 
 # 6. Interpretação do modelo selecionado
@@ -305,7 +350,7 @@ Ao avaliar os valores do VIF (Variance Inflation Factor), que mede a colinearida
 #install.packages("report")
 
 library(report)
-#report(modelo3)
+report(modelo3)
 
 ```
 
@@ -395,13 +440,10 @@ A comparação entre os valores previstos e reais resulta nos seguintes erros ab
 
 -   **Pinguim-de-barbicha**: A previsão está muito próxima do valor real, apresentando um erro de apenas 0.11 mm, o que indica que o modelo está capturando bem a relação entre as variáveis para esta espécie.
 
-
 -   **Pinguim-gentoo**: A previsão também é razoavelmente próxima do valor real, com um erro de 0.31 mm. Embora o modelo não seja tão preciso quanto para o *Pinguim-de-barbicha*, ele ainda fornece uma estimativa útil.
-
 
 ### 7.4 Conclusão
 
 O modelo de regressão linear múltipla utilizado para prever a profundidade do bico de diferentes espécies de pinguins mostrou-se eficaz em geral, embora com variação no desempenho entre as espécies. Para o *Pinguim-de-barbicha*, o erro de previsão foi mínimo (0.11 mm), demonstrando que o modelo conseguiu captar com precisão as relações entre as variáveis. Já para o *Pinguim-gentoo*, o erro foi um pouco maior (0.31 mm), sugerindo que o modelo pode não capturar com a mesma eficiência as características dessa espécie.
 
-Essa diferença de desempenho pode ser explicada por variações biológicas entre as espécies ou até mesmo por uma menor representatividade de dados no conjunto utilizado para o treinamento do modelo. Assim, a inclusão de um maior número de amostras e o refinamento do modelo, levando em conta outros fatores, como variações ambientais ou de comportamento, podem melhorar ainda mais a acurácia das previsões. 
-
+Essa diferença de desempenho pode ser explicada por variações biológicas entre as espécies ou até mesmo por uma menor representatividade de dados no conjunto utilizado para o treinamento do modelo. Assim, a inclusão de um maior número de amostras e o refinamento do modelo, levando em conta outros fatores, como variações ambientais ou de comportamento, podem melhorar ainda mais a acurácia das previsões.

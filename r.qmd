@@ -193,10 +193,6 @@ Dessa forma, nenhuma das variáveis apresenta multicolinearidade severa, já que
 
 # 3. Modelos
 
-```{r}
-modelo10 <- lm(profundidade_bico ~ ., data = dados_clean)
-summary(modelo10)
-```
 
 Inicialmente temos o primeiro modelo
 
@@ -293,7 +289,7 @@ plot(modelo3)
 
 -   **Residuals vs Fitted:** Os pontos estão distribuídos de forma aleatória, sem nenhum padrão específico na forma de U ou V, logo, verificando a linearidade e a homocedasticidade.
 
--   **Normal Q-Q**: Os pontos seguem a linha reta, ajudando a suposição de que os resíduos seguem uma distribuição normal. Esses resultados indicam que os resíduos do modelo se comportam de forma consistente com a normalidade, o que valida os testes estatísticos aplicados aos coeficientes do modelo e reforça a confiabilidade das inferências feitas.
+-   **Normal Q-Q**: Os pontos seguem a linha reta, ajudando a suposição de que os resíduos seguem uma distribuição normal, o que valida os testes estatísticos aplicados aos coeficientes do modelo e reforça a confiabilidade das inferências feitas.
 
 -   **Scale-Location (ou Spread-Location)**: Os pontos estão espalhados em torno de uma linha horizontal, verificando verificando a homocedasticidade.
 
@@ -379,14 +375,14 @@ print(previsoes)
 
 Análise das previsões da profundidade de bico de diferentes espécies de pinguins, utilizando um modelo de regressão linear múltipla (modelo3). A previsão é feita com base em características específicas, como comprimento da nadadeira, massa corporal e sexo dos pinguins. Os dados reais são comparados com as previsões para avaliar a precisão do modelo.
 
-Para realizar as previsões, foram obtidos esses dados para três espécies de pinguins:
+Para realizar as previsões, foram obtidos esses dados para duas espécies de pinguins:
 
 1.  **Pinguim-de-barbicha**
     -   Comprimento de nadadeira: 193 mm
     -   Massa corporal: 3800 g
     -   Sexo: fêmea
     -   Ilha: Dream
-3.  **Pinguim-gentoo**
+2.  **Pinguim-gentoo**
     -   Comprimento de nadadeira: 229 mm
     -   Massa corporal: 5950 g
     -   Sexo: macho
@@ -409,7 +405,7 @@ A comparação entre os valores previstos e reais resulta nos seguintes erros ab
     -   Previsão: **17.91 mm**
     -   Dado Real: **17.8 mm**
     -   Erro: ( \|17.91 - 17.8\| = 0.11 ) mm
-3.  **Pinguim-gentoo**:
+2.  **Pinguim-gentoo**:
     -   Previsão: **16.21 mm**
     -   Dado Real: **15.9 mm**
     -   Erro: ( \|16.21 - 15.9\| = 0.31 ) mm

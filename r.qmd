@@ -100,13 +100,13 @@ boxplot(dados_clean$comprimento_bico,
 ```
 
 ```{r}
+
 boxplot(dados_clean$comprimento_nadadeira, 
         main = "Boxplot de Comprimento da Nadadeira",
         ylab = "Comprimento do Nadadeira",
         col = "lightblue", 
         border = "darkblue",
         outline = TRUE)
-
 ```
 
 ```{r}
@@ -377,6 +377,16 @@ Logo podemos concluir que os pinguins das ilhas Dream e Torgersen têm bicos mai
 
 lm.beta::lm.beta(modelo3)
 ```
+
+Analisando os coeficientes beta para o modelo3, temos os seguinte:
+
+-   **ilha (Dream e Torgersen)**: A ilha é uma variável categórica com três níveis (assumindo que o nível de referência é Biscoe, já que não aparece nos resultados). Os coeficientes padronizados para as ilhas Dream (0.26) e Torgersen (0.19) indicam o impacto relativo dessas ilhas na profundidade do bico em comparação com a ilha de referência (Biscoe). Dream tem uma associação positiva mais forte com a profundidade do bico do que Torgersen.
+
+-   **comprimento_nadadeira (-0.36)**: Esse coeficiente negativo sugere que, ao aumentar o comprimento da nadadeira, a profundidade do bico tende a diminuir. A magnitude do coeficiente sugere um impacto significativo na profundidade do bico.
+
+-   **massa_corporal (-0.23)**: Esse coeficiente também é negativo, indicando que, à medida que a massa corporal aumenta, a profundidade do bico diminui. No entanto, a magnitude desse efeito é menor do que a do comprimento da nadadeira.
+
+-   **sexo (macho 0.56)**: O coeficiente positivo para sexo macho indica que os pinguins machos tendem a ter bicos mais profundos em relação às fêmeas (supondo que a categoria de referência para o sexo seja fêmea). Esse coeficiente é relativamente alto, sugerindo um impacto significativo do sexo na profundidade do bico.
 
 # 7. Previsões e Estimação Intervalar
 

@@ -197,6 +197,8 @@ No entanto, nesse modelo existe uma anormalidade nas estimativas levando em cons
 Essa situação pode ser explicada pela **multicolinearidade** entre as variáveis preditoras, causando o cálculo incorreto, para provar essa questão é calculado o VIF.
 
 ```{r}
+library(car) 
+
 vif(modelo0)
 ```
 
@@ -336,8 +338,6 @@ Esses resultados indicam que os resíduos do modelo se comportam de forma consis
 
 ```{r}
 
-library(car) 
-
 vif(modelo3)
 
 ```
@@ -378,7 +378,7 @@ Logo podemos concluir que os pinguins das ilhas Dream e Torgersen têm bicos mai
 lm.beta::lm.beta(modelo3)
 ```
 
-# 7 Previsões e Estimação Intervalar
+# 7. Previsões e Estimação Intervalar
 
 ```{r}
 novos_dados <- data.frame(

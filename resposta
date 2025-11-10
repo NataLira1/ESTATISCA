@@ -1,0 +1,125 @@
+Universidade Federal de Campina Grande – UFCG
+Centro de Engenharia Elétrica e Informática – CEEI
+Unidade Acadêmica de Sistemas e Computação – UASC
+Disciplina: Administração de Sistemas
+Professor: Giovanni Farias
+Aluno: Natã Cavalcante Brito Lira
+
+Prática 02 – Comandos Básicos II
+
+Para cada questão a seguir, cole o(s) comando(s) utilizado(s) por você para realizar as ações solicitadas.
+
+1. Em /home/$USER, crie um novo diretório chamado sistema e navegue até ele.
+
+mkdir sistema
+cd sistema
+
+2. Crie um diretório chamado meus_arquivos.
+
+mkdir meus_arquivos
+
+3. Dentro de meus_arquivos, crie os subdiretórios: relatorios, scripts e backup.
+
+mkdir meus_arquivos/{relatorios,scripts,backup}
+
+4. No diretório relatorios, usando o comando echo, crie os arquivos relatorio1.txt, relatorio2.txt e resumo.txt, contendo respectivamente:
+“Relatório de atividades do sistema”
+“Relatório de desempenho”
+“Resumo geral das tarefas”
+
+echo "Relatório de atividades do sistema" > meus_arquivos/relatorios/relatorio1.txt
+echo "Relatório de desempenho" > meus_arquivos/relatorios/relatorio2.txt
+echo "Resumo geral das tarefas" > meus_arquivos/relatorios/resumo.txt
+
+5. No diretório scripts, usando o comando echo, crie um arquivo chamado saudacao.sh com o seguinte conteúdo:
+#!/bin/bash
+echo "Bem-vindo ao curso de Administração de Sistemas!"
+
+echo -e "#!/bin/bash\necho \"Bem-vindo ao curso de Administração de Sistemas!\"" > meus_arquivos/scripts/saudacao.sh
+
+6. Torne o arquivo saudacao.sh executável. Para isso você pode usar o comando chmod.
+
+chmod +x meus_arquivos/scripts/saudacao.sh
+
+7. No diretório relatorios, usando o comando echo, adicione ao final do arquivo resumo.txt a frase:
+"A análise dos dados está em andamento."
+
+echo "A análise dos dados está em andamento." >> meus_arquivos/relatorios/resumo.txt
+
+8. Crie uma cópia do arquivo resumo.txt no diretório backup com o nome resumo_backup.txt.
+
+cp meus_arquivos/relatorios/resumo.txt meus_arquivos/backup/resumo_backup.txt
+
+9. No diretório scripts, usando o comando echo, crie outro arquivo chamado data_hora.sh com o conteúdo:
+#!/bin/bash
+date
+
+echo -e "#!/bin/bash\ndate" > meus_arquivos/scripts/data_hora.sh
+
+10. Execute o script data_hora.sh e redirecione a saída para um arquivo chamado registro.txt no diretório backup.
+
+chmod +x meus_arquivos/scripts/data_hora.sh
+./meus_arquivos/scripts/data_hora.sh > meus_arquivos/backup/registro.txt
+
+11. Liste o conteúdo do diretório /bin e filtre apenas as linhas que contenham a palavra “cat”, salvando o resultado em comandos_cat.txt dentro de relatorios.
+
+ls /bin | grep cat > meus_arquivos/relatorios/comandos_cat.txt
+
+12. Exiba as últimas 3 linhas do arquivo comandos_cat.txt.
+
+tail -n 3 meus_arquivos/relatorios/comandos_cat.txt
+
+13. No diretório relatorios, usando o comando echo, crie um arquivo chamado usuarios.txt contendo as seguintes linhas:
+admin
+operador
+visitante
+root
+professor
+
+echo -e "admin\noperador\nvisitante\nroot\nprofessor" > meus_arquivos/relatorios/usuarios.txt
+
+14. Exiba todas as linhas do arquivo usuarios.txt que contenham a letra “o” e salve a saída em usuarios_filtrados.txt.
+
+grep "o" meus_arquivos/relatorios/usuarios.txt > meus_arquivos/relatorios/usuarios_filtrados.txt
+
+15. Exiba o conteúdo de usuarios.txt mostrando também a numeração das linhas.
+
+cat -n meus_arquivos/relatorios/usuarios.txt
+
+16. Verifique as permissões dos diretórios e arquivos dentro de meus_arquivos.
+
+ls -lh meus_arquivos
+
+17. Altere as permissões do diretório backup para permitir leitura e escrita apenas para o dono. Para isso, você pode usar o comando chmod.
+
+chmod 700 meus_arquivos/backup
+
+18. Compacte o diretório meus_arquivos em um arquivo chamado meus_arquivos.tar.gz.
+
+tar -czvf meus_arquivos.tar.gz meus_arquivos
+
+19. Crie um novo diretório chamado restauracao e descompacte o conteúdo do arquivo meus_arquivos.tar.gz dentro dele.
+
+mkdir meus_arquivos/restauracao
+tar -xzvf meus_arquivos.tar.gz -C meus_arquivos/restauracao/
+
+20. Compare o conteúdo dos arquivos resumo.txt dos diretórios meus_arquivos/relatorios e restauracao/meus_arquivos/relatorios.
+
+diff meus_arquivos/relatorios/resumo.txt meus_arquivos/restauracao/meus_arquivos/relatorios/resumo.txt
+
+21. Acesse o manual (man) do comando grep e salve sua saída no arquivo manual_grep.txt dentro de relatorios.
+
+man grep > meus_arquivos/relatorios/manual_grep.txt
+
+22. Acrescente (sem sobrescrever) ao mesmo arquivo (manual_grep.txt) o conteúdo do manual do comando sort.
+
+man sort >> meus_arquivos/relatorios/manual_grep.txt
+
+23. Pesquise todas as ocorrências da palavra “pattern” no arquivo manual_grep.txt, exibindo o número das linhas onde a palavra aparece.
+
+grep -n "pattern" meus_arquivos/relatorios/manual_grep.txt
+
+24. Explique, com suas próprias palavras, a diferença entre os comandos cat e less.
+
+O comando **cat** exibe o conteúdo de um arquivo diretamente na saída do terminal, mostrando **todo** o conteúdo de uma vez. É ideal para arquivos curtos.
+O comando **less** abre o arquivo em um visualizador paginado. Ele exibe o conteúdo tela por tela, permitindo que o usuário navegue (rolar para cima/baixo) e pesquise dentro de arquivos grandes de forma interativa e eficiente.

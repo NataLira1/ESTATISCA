@@ -1,0 +1,115 @@
+UNIVERSIDADE FEDERAL DE CAMPINA GRANDE – UFCG
+CENTRO DE ENGENHARIA ELÉTRICA E INFORMÁTICA – CEEI
+UNIDADE ACADÊMICA DE SISTEMAS E COMPUTAÇÃO – UASC
+DISCIPLINA: ADMINISTRAÇÃO DE SISTEMAS
+PROFESSOR: GIOVANNI FARIAS
+ALUNO: ______________________________
+
+PRÁTICA 03 – COMANDOS BÁSICOS, METACARACTERES, PERMISSÕES E VARIÁVEIS
+
+--- COMANDOS UTILIZADOS ---
+
+1. Em /home/$USER, crie um novo diretório chamado shell_pratica e navegue até ele.
+mkdir /home/$USER/shell_pratica
+cd /home/$USER/shell_pratica
+
+2. Crie uma variável de shell chamada DIRBASE que armazene o caminho /home/$USER/shell_pratica. Em seguida, use essa variável para criar um diretório chamado dados.
+DIRBASE="/home/$USER/shell_pratica"
+mkdir $DIRBASE/dados
+
+3. Dentro de dados, crie os diretórios: textos, codigo, imagens e logs.
+mkdir dados/textos dados/codigo dados/imagens dados/logs
+
+4. Dentro do diretório textos, crie os arquivos abaixo. Utilize o comando echo para adicionar algum conteúdo curto a cada arquivo. Seguem os arquivos: nota1.txt, nota2.txt, nota3.txt, relatorio_A.txt, relatorio_B.txt
+echo "Primeira nota de shell" > dados/textos/nota1.txt
+echo "Segunda nota, mais complexa" > dados/textos/nota2.txt
+echo "Nota final da prática" > dados/textos/nota3.txt
+echo "Relatório A: Introdução à Prática" > dados/textos/relatorio_A.txt
+echo "Relatório B: Conclusões e Resultados" > dados/textos/relatorio_B.txt
+
+5. Usando metacaracteres, liste apenas os arquivos, no diretório textos, cujo nome começa com nota seguido de qualquer dígito.
+ls dados/textos/nota[0-9].txt
+
+6. Exiba apenas os arquivos que terminam com .txt e cujo nome contenha qualquer letra entre A e M (maiúsculas).
+ls dados/textos/[A-M]*.txt
+
+7. No diretório codigo, crie um arquivo chamado hello.py com o conteúdo abaixo:
+echo -e "nome = input()\nprint(\"Olá\", nome)" > dados/codigo/hello.py
+
+8. Execute o programa hello.py criado na questão anterior e use seu nome como input.
+echo "SeuNome" | python3 dados/codigo/hello.py
+
+9. Crie o arquivo input.txt com o seu nome como conteúdo, e, em seguida, execute o programa hello.py criado na questão 7 e redirecione a entrada para considerar o arquivo input.txt.
+echo "SeuNomeCompleto" > input.txt
+python3 dados/codigo/hello.py < input.txt
+
+10. Redirecione a saída padrão e de erro da execução da questão 9, respectivamente, para os arquivos chamados out_execucao.txt e erro_execucao.txt dentro de logs.
+python3 dados/codigo/hello.py < input.txt 1> dados/logs/out_execucao.txt 2> dados/logs/erro_execucao.txt
+
+11. Verifique os tipos dos arquivos dentro de codigo e textos usando o comando file, salvando os resultados no arquivo tipos.txt dentro de logs.
+file dados/codigo/* dados/textos/* > dados/logs/tipos.txt
+
+12. No diretório dados, altere as permissões do diretório imagens para permitir: leitura e execução para todos e escrita apenas para o dono.
+chmod u=rwX,go=rX dados/imagens
+# OU: chmod 755 dados/imagens
+
+13. Use o comando find para buscar todos os arquivos .txt dentro de dados e redirecione a saída para lista_txt.txt em logs.
+find dados -name "*.txt" > dados/logs/lista_txt.txt
+
+14. Use find para listar todos os arquivos modificados nos últimos 24h dentro de dados, enviando erros para erros_find.txt.
+find dados -mtime -1 2> dados/logs/erros_find.txt
+
+15. Exiba as 2 primeiras linhas de todos os arquivos relatorio_*.txt usando uma única linha de comando com metacaracteres.
+head -n 2 dados/textos/relatorio_*.txt
+
+16. No diretório codigo, torne o arquivo hello.py executável usando chmod.
+chmod +x dados/codigo/hello.py
+
+17. No diretório codigo, execute o programa hello.py redirecionando saída e erro juntos para saida_execucao.txt.
+./dados/codigo/hello.py < input.txt &> dados/codigo/saida_execucao.txt
+# OU: ./dados/codigo/hello.py < input.txt > dados/codigo/saida_execucao.txt 2>&1
+
+18. Crie uma variável de ambiente chamada TRABALHO contendo o valor “Administração de Sistemas”. Mostre como exportá-la e como verificar seu valor no ambiente.
+TRABALHO="Administração de Sistemas"
+export TRABALHO
+echo $TRABALHO
+# OU: printenv TRABALHO
+
+19. Filtre todas as linhas do arquivo tipos.txt que contenham a palavra Python, salvando o resultado em python.txt.
+grep "Python" dados/logs/tipos.txt > dados/logs/python.txt
+
+20. Compacte o diretório dados em dados.tar.gz.
+tar -czvf dados.tar.gz dados
+
+21. Crie um diretório chamado restaurado e descompacte o arquivo dados.tar.gz dentro dele.
+mkdir restaurado
+tar -xzvf dados.tar.gz -C restaurado
+
+22. Compare o arquivo nota1_final.txt do diretório original com aquele do diretório restaurado.
+# (Assumindo que nota1_final.txt é, na verdade, nota1.txt)
+diff dados/textos/nota1.txt restaurado/dados/textos/nota1.txt
+
+--- EXPLICAÇÕES CONCEITUAIS ---
+
+23. Explique, com suas palavras, a diferença entre uma variável de shell e uma variável de ambiente.
+
+Uma **variável de shell (local)** é uma variável definida e visível apenas dentro da **sessão do shell atual** (o terminal). Ela não é automaticamente herdada por novos processos ou programas que o shell inicia.
+
+Uma **variável de ambiente (global)** é uma variável de shell que foi **exportada** (comando 'export'). Isso a torna visível e acessível a **todos os processos e shells filhos** criados a partir do shell pai. Elas são usadas para configurar o ambiente de execução dos programas (exemplos: $PATH, $HOME).
+
+24. Explique, incluindo exemplos, a diferença entre os redirecionamentos: >, >>, 2>, &>
+
+Os redirecionamentos alteram o destino padrão da saída de um comando:
+
+* **`>` (Sobrescrever STDOUT)**: Redireciona a Saída Padrão (STDOUT, descritor 1) para um arquivo. Se o arquivo existir, **seu conteúdo é apagado e substituído**.
+    * Exemplo: `ls -l > lista.txt`
+
+* **`>>` (Anexar STDOUT)**: Redireciona a Saída Padrão (STDOUT) para um arquivo. Se o arquivo existir, o novo conteúdo é **adicionado ao final** (anexado).
+    * Exemplo: `echo "Mais um log" >> log.txt`
+
+* **`2>` (Redirecionar STDERR)**: Redireciona o Erro Padrão (STDERR, descritor 2) para um arquivo. Usado para isolar mensagens de erro. **Sobrescreve** o arquivo.
+    * Exemplo: `find /etc -name "*.conf" 2> erros.log`
+
+* **`&>` (Redirecionar STDOUT e STDERR Juntos)**: Redireciona **Saída Padrão e Erro Padrão** para o mesmo arquivo, tratando ambas como uma única saída. **Sobrescreve** o arquivo. (Equivalente a `> arquivo 2>&1`).
+    * Exemplo: `comando &> saida_completa.log`
+
